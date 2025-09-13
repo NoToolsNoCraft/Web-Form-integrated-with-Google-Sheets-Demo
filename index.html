@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect & Grow with Us</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --linkedin-blue: #0A66C2;
+      --linkedin-text: #424242;
+      --linkedin-background: #F3F2EF;
+      --linkedin-card-background: #FFFFFF;
+      --border-radius: 8px;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--linkedin-background);
+      color: var(--linkedin-text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 2rem;
+      padding: 2rem;
+      background-color: var(--linkedin-card-background);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .header {
+      text-align: center;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #EBEBEB;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      color: var(--linkedin-blue);
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+    }
+
+    .header p {
+      font-size: 1rem;
+      color: #666;
+      margin: 0;
+    }
+
+    .content-section {
+      text-align: justify;
+      line-height: 1.6;
+    }
+
+    .content-section h2 {
+      color: var(--linkedin-blue);
+      font-weight: 500;
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+
+    .form-section {
+      padding-top: 1rem;
+    }
+
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #CCC;
+      border-radius: var(--border-radius);
+      box-sizing: border-box;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--linkedin-blue);
+      box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.2);
+    }
+
+    button {
+      background: var(--linkedin-blue);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    button:hover {
+      background: #004182;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .status {
+      margin-top: 15px;
+      font-weight: 500;
+      text-align: center;
+      color: #0077B5; /* A success-like color */
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Let's Connect & Grow Together</h1>
+      <p>Join our professional network by submitting your information below. We're excited to collaborate with you!</p>
+    </div>
+
+    <div class="content-section">
+      <h2>About This Initiative</h2>
+      <p>This application is part of a project dedicated to building and managing professional connections efficiently. By using this form, you're directly contributing to a robust database that helps us identify new partnership opportunities, streamline communication, and foster a strong community of like-minded professionals. We value your input and are committed to leveraging this data to create meaningful connections.</p>
+    </div>
+
+    <div class="form-section">
+      <form id="dataForm" class="form-container">
+        <input type="text" name="name" placeholder="Your Full Name" required>
+        <input type="email" name="email" placeholder="Your Professional Email" required>
+        <textarea name="message" placeholder="Share your professional interests or a brief message" rows="4" required></textarea>
+        <button type="submit">Submit to Google Sheets</button>
+      </form>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('dataForm');
+    const statusDiv = document.getElementById('status');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const data = {
+        name: form.name.value,
+        email: form.email.value,
+        message: form.message.value
+      };
+
+      // Show a temporary "submitting" message
+      statusDiv.innerText = "Submitting data...";
+      statusDiv.style.color = "#FF9900"; // Orange color for "pending"
+
+      fetch("https://script.google.com/macros/s/AKfycbw87Is1PexJTtDO51dTyCT90QymFI7ez8iS6ujSAbScf-jywzwLLwndg1X__Y6Gvcu4GA/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'text/plain' // Required for some Google Apps Script deployments
+        }
+      })
+      .then(response => {
+          if (!response.ok) {
+              // This part handles HTTP errors (e.g., 404, 500)
+              throw new Error('Network response was not ok');
+          }
+          return response.json(); // Parse the JSON from the response
+      })
+      .then(res => {
+        // The Google Apps Script returns a 'result' key, which we can check
+        if (res.result === "success") {
+          statusDiv.innerText = "✅ Data submitted successfully! Thank you for connecting.";
+          statusDiv.style.color = "#0077B5"; // LinkedIn blue for success
+          form.reset();
+        } else {
+          // This block catches any logical errors returned by the script
+          statusDiv.innerText = "✅Awesome!: " + res.message;
+          statusDiv.style.color = "#D1413C"; // Red for error
+        }
+      })
+      .catch(err => {
+        // This block is for genuine network or parsing errors
+        statusDiv.innerText = "❌ An error occurred. Please try again later.";
+        statusDiv.style.color = "#D1413C"; // Red for error
+        console.error("Fetch error:", err);
+      });
+    });
+  </script>
+</body>
+</html>
