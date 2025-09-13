@@ -1,0 +1,19 @@
+function doPost(e) {
+  var sheet = SpreadsheetApp.openById("1H2peYFnGowbHrxpghL9dfJeewDuC3uFiwKeaVpq3t6E").getSheetByName("Sheet1");
+  
+  var data = JSON.parse(e.postData.contents);
+  
+  sheet.appendRow([new Date(), data.name, data.email, data.message]);
+  
+  return ContentService.createTextOutput(JSON.stringify({ 
+    "status": "success",
+    "message": "Data saved successfully!" 
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+
+function doGet(e) {
+  return ContentService.createTextOutput(
+    "✅ Web App is deployed and ready to accept POST requests."
+  );
+}
